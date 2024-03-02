@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { fetchCoins } from "../api";
 
 const Title = styled.h1`
   font-size: 48px;
@@ -43,7 +45,19 @@ const Img = styled.img`
   margin-right: 10px;
 `;
 
+/*
 interface CoinInterface {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: number;
+  is_new: boolean;
+  is_active: boolean;
+  type: string;
+}
+*/
+
+interface ICoin {
   id: string;
   name: string;
   symbol: string;
@@ -59,9 +73,13 @@ const Loader = styled.span`
 `;
 
 function Coins() {
-  const [coins, setCoins] = useState<CoinInterface[]>([]);
-  const [loading, setLoading] = useState(true);
+  //const [coins, setCoins] = useState<CoinInterface[]>([]);
+  // const [loading, setLoading] = useState(true);
+  const { isLoading, data } = useQuery<ICoin[]>(["allCoins"], fetchCoins);
+  // fetcher function is loading? isLoading would tell you. Otherwise, useQuery calls fetchCoins and when fetcer finishes,
+  // it gives you json data to 'data'
 
+  /*
   useEffect(() => {
     (async () => {
       const response = await fetch("https://api.coinpaprika.com/v1/coins");
@@ -70,17 +88,17 @@ function Coins() {
       setLoading(false);
     })();
   }, []);
-
+  */
   return (
     <Container>
       <Header>
         <Title>코인</Title>
       </Header>
-      {loading ? (
+      {isLoading ? (
         <Loader> "Loading..."</Loader>
       ) : (
         <CoinsList>
-          {coins.map((coin) => (
+          {data?.slice(0, 100).map((coin) => (
             <Coin key={coin.id}>
               <Link to={`/${coin.id}`} state={coin.name}>
                 <Img

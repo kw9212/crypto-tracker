@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams, Routes, Route } from "react-router-dom";
+import {
+  useLocation,
+  useParams,
+  Routes,
+  Route,
+  useMatch,
+} from "react-router-dom";
 import styled from "styled-components";
 import Price from "./Price";
 import Chart from "./Chart";
+import { Link } from "react-router-dom";
+import { useQuery } from "react-query";
+import { fetchCoinInfo, fetchCoinTickers } from "../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -76,6 +85,28 @@ interface PriceData {
   }; // Adjust based on actual quote data structure
 }
 
+const Tabs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 25px 0px;
+  gap: 10px;
+`;
+
+const Tab = styled.span<{ isActive: boolean }>`
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 7px 0px;
+  border-radius: 10px;
+  color: ${(props) =>
+    props.isActive ? props.theme.accentColor : props.theme.textColor};
+  a {
+    display: block;
+  }
+`;
+
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
@@ -100,13 +131,26 @@ const Description = styled.p`
 
 function Coin() {
   const { coinId } = useParams();
-  const [loading, setLoading] = useState(true);
+  //const [loading, setLoading] = useState(true);
   //const location = useLocation(); // react router Dom이 보내주는 location object에 접근하면 state에 접근가능. hook useLocation
   //console.log(location);
   const { state } = useLocation() as RouterState;
-  const [info, setInfo] = useState<InfoData | null>(null);
-  const [priceInfo, setPriceInfo] = useState<PriceData | null>(null);
+  // const [info, setInfo] = useState<InfoData | null>(null);
+  // const [priceInfo, setPriceInfo] = useState<PriceData | null>(null);
+  const priceMatch = useMatch("/:coinId/price");
+  const chartMatch = useMatch("/:coinId/chart");
+  // console.log(priceMatch); Result: object return
 
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId!)
+  );
+  const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
+    ["tickers", coinId],
+    () => fetchCoinTickers(coinId!) // Non-null assertion operator
+  );
+
+  /*
   useEffect(() => {
     (async () => {
       const infoData = await (
@@ -122,11 +166,14 @@ function Coin() {
       setLoading(false);
     })();
   }, [coinId]);
+*/
+
+  const loading = infoLoading || tickersLoading;
 
   return (
     <Container>
       <Header>
-        <Title>{state ? state : "Loading..."}</Title>
+        <Title>{state ? state : loading ? "Loading..." : infoData?.name}</Title>
       </Header>
       {loading ? (
         <Loader> "Loading..."</Loader>
@@ -135,31 +182,41 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>Rank:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Symbol:</span>
-              <span>${info?.symbol}</span>
+              <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Open Source:</span>
-              <span>{info?.open_source ? "Yes" : "No"}</span>
+              <span>{infoData?.open_source ? "Yes" : "No"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>Total Suply:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>Max Supply:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickersData?.max_supply}</span>
             </OverviewItem>
           </Overview>
+
+          <Tabs>
+            <Tab isActive={chartMatch !== null}>
+              <Link to={`/${coinId}/chart`}>Chart</Link>
+            </Tab>
+            <Tab isActive={priceMatch !== null}>
+              <Link to={`/${coinId}/price`}>Price</Link>
+            </Tab>
+          </Tabs>
+
           <Routes>
-            <Route path={`/${coinId}/price`} element={<Price />}></Route>
-            <Route path={`/${coinId}/chart`} element={<Chart />}></Route>
+            <Route path={"price"} element={<Price />}></Route>
+            <Route path={"chart"} element={<Chart coinId={coinId!} />}></Route>
           </Routes>
         </>
       )}
