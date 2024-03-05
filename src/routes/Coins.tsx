@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { fetchCoins } from "../api";
+import { Helmet } from "react-helmet";
 
 const Title = styled.h1`
   font-size: 48px;
@@ -45,18 +45,6 @@ const Img = styled.img`
   margin-right: 10px;
 `;
 
-/*
-interface CoinInterface {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
-}
-*/
-
 interface ICoin {
   id: string;
   name: string;
@@ -73,24 +61,13 @@ const Loader = styled.span`
 `;
 
 function Coins() {
-  //const [coins, setCoins] = useState<CoinInterface[]>([]);
-  // const [loading, setLoading] = useState(true);
   const { isLoading, data } = useQuery<ICoin[]>(["allCoins"], fetchCoins);
-  // fetcher function is loading? isLoading would tell you. Otherwise, useQuery calls fetchCoins and when fetcer finishes,
-  // it gives you json data to 'data'
 
-  /*
-  useEffect(() => {
-    (async () => {
-      const response = await fetch("https://api.coinpaprika.com/v1/coins");
-      const json = await response.json(); // 코인이 너무 많다. 67502개... 이럴 때 몇개만 보여줄 수 있는 방법으로 slice()를 사용한다.
-      setCoins(json.slice(0, 100));
-      setLoading(false);
-    })();
-  }, []);
-  */
   return (
     <Container>
+      <Helmet>
+        <title> 코인</title>
+      </Helmet>
       <Header>
         <Title>코인</Title>
       </Header>

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Helmet } from "react-helmet";
 import {
   useLocation,
   useParams,
@@ -21,13 +22,28 @@ const Container = styled.div`
 const Header = styled.header`
   height: 10vh;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 `;
 
 const Title = styled.h1`
   font-size: 48px;
   color: ${(props) => props.theme.accentColor};
+  position: relative;
+  left: -25px;
+`;
+
+const Button = styled.button`
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  &:hover {
+    border: 2px solid transparent; // Added the missing colon
+    transform: scale(1.05); // Corrected the syntax
+  }
 `;
 
 const Loader = styled.span`
@@ -85,6 +101,11 @@ interface PriceData {
   }; // Adjust based on actual quote data structure
 }
 
+const arrowStyle = {
+  fontSize: "48px", // Use colon and wrap the value in quotes
+  color: "white",
+};
+
 const Tabs = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -131,12 +152,7 @@ const Description = styled.p`
 
 function Coin() {
   const { coinId } = useParams();
-  //const [loading, setLoading] = useState(true);
-  //const location = useLocation(); // react router Dom이 보내주는 location object에 접근하면 state에 접근가능. hook useLocation
-  //console.log(location);
   const { state } = useLocation() as RouterState;
-  // const [info, setInfo] = useState<InfoData | null>(null);
-  // const [priceInfo, setPriceInfo] = useState<PriceData | null>(null);
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
   // console.log(priceMatch); Result: object return
@@ -147,33 +163,33 @@ function Coin() {
   );
   const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
     ["tickers", coinId],
-    () => fetchCoinTickers(coinId!) // Non-null assertion operator
+    () => fetchCoinTickers(coinId!), // Non-null assertion operator
+    {
+      refetchInterval: 5000,
+    }
   );
-
-  /*
-  useEffect(() => {
-    (async () => {
-      const infoData = await (
-        await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
-      ).json();
-      //console.log(infoData);
-      const priceData = await (
-        await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
-      ).json();
-      //console.log(priceData);
-      setInfo(infoData);
-      setPriceInfo(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]);
-*/
 
   const loading = infoLoading || tickersLoading;
 
   return (
     <Container>
+      <Helmet>
+        <title>
+          {" "}
+          {state ? state : loading ? "Loading..." : infoData?.name}
+        </title>
+      </Helmet>
       <Header>
-        <Title>{state ? state : loading ? "Loading..." : infoData?.name}</Title>
+        <Link to="/">
+          <Button>
+            <ArrowBackIcon style={arrowStyle} />
+          </Button>
+        </Link>
+        <Title>
+          {" "}
+          {state ? state : loading ? "Loading..." : infoData?.name}
+        </Title>
+        <div></div>
       </Header>
       {loading ? (
         <Loader> "Loading..."</Loader>
@@ -189,8 +205,12 @@ function Coin() {
               <span>${infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
-              <span>{infoData?.open_source ? "Yes" : "No"}</span>
+              <span>Price:</span>
+              <span>
+                {tickersData?.quotes.USD.price.toFixed(3)
+                  ? tickersData?.quotes.USD.price.toFixed(3)
+                  : "No"}
+              </span>
             </OverviewItem>
           </Overview>
           <Description>{infoData?.description}</Description>

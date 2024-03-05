@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
+    "@material-ui/core": "^4.12.4",
+    "@mui/icons-material": "^5.15.11",
+    "@mui/material": "^5.15.11",
     "@tanstack/react-query": "^5.24.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -11,8 +16,11 @@
     "@types/node": "^20.11.21",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
+    "apexcharts": "^3.46.0",
     "react": "^18.2.0",
+    "react-apexcharts": "^1.4.1",
     "react-dom": "^18.2.0",
+    "react-helmet": "^6.1.0",
     "react-query": "^3.39.3",
     "react-router-dom": "6.4",
     "react-scripts": "5.0.1",
@@ -45,6 +53,7 @@
     ]
   },
   "devDependencies": {
-    "@tanstack/react-query-devtools": "^5.24.6"
+    "@tanstack/react-query-devtools": "^5.24.6",
+    "@types/react-helmet": "^6.1.11"
   }
 }
