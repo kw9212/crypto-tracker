@@ -150,7 +150,11 @@ const Description = styled.p`
   margin: 20px 0px;
 `;
 
-function Coin() {
+interface ICoinProps {
+  isDark: boolean;
+}
+
+function Coin({ isDark }: ICoinProps) {
   const { coinId } = useParams();
   const { state } = useLocation() as RouterState;
   const priceMatch = useMatch("/:coinId/price");
@@ -236,7 +240,10 @@ function Coin() {
 
           <Routes>
             <Route path={"price"} element={<Price />}></Route>
-            <Route path={"chart"} element={<Chart coinId={coinId!} />}></Route>
+            <Route
+              path={"chart"}
+              element={<Chart isDark={isDark} coinId={coinId!} />}
+            ></Route>
           </Routes>
         </>
       )}

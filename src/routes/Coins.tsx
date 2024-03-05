@@ -23,7 +23,7 @@ const CoinsList = styled.ul``;
 
 const Coin = styled.li`
   background-color: white;
-  color: ${(props) => props.theme.bgColor};
+  color: ${(props) => props.theme.textColor};
   margin-bottom: 10px;
   border-radius: 15px;
   a {
@@ -60,7 +60,11 @@ const Loader = styled.span`
   display: block;
 `;
 
-function Coins() {
+interface ICoinsProps {
+  modeChange: () => void;
+}
+
+function Coins({ modeChange }: ICoinsProps) {
   const { isLoading, data } = useQuery<ICoin[]>(["allCoins"], fetchCoins);
 
   return (
@@ -70,6 +74,7 @@ function Coins() {
       </Helmet>
       <Header>
         <Title>코인</Title>
+        <button onClick={modeChange}>Toggle Mode</button>
       </Header>
       {isLoading ? (
         <Loader> "Loading..."</Loader>
